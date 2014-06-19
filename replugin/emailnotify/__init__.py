@@ -16,6 +16,9 @@
 Email Notification worker.
 """
 
+import smtplib
+
+from email.mime.text import MIMEText
 
 from reworker.worker import Worker
 
@@ -62,27 +65,29 @@ class EmailNotifyWorker(Worker):
                 if type(body['target']) is not list:
                     raise ValueError()
                 for key in body['target']:
-                    if type(key) is not str:
+                    # TODO: better verification that it's an email address
+                    if type(key) is not str or '@' not in key:
                         raise ValueError()
             except KeyError:
                 raise EmailNotifyWorkerError(
                     'Missing a required param. Requires: %s' % str(
                         required_keys))
             except ValueError:
-                raise EmailNotifyWorkerError('All inputs must be str.')
+                raise EmailNotifyWorkerError(
+                    'All inputs must be str and valid addresses.')
 
             output.info('Sending notification to %s via email' % ", ".join(
                 body['target']))
 
             for target in body['target']:
-                # TODO send email
-                pass
+                self._send_msg(target, body['slug'], body['message'])
+
             output.info('Email notification sent!')
             self.app_logger.info('Finished Email notification with no errors.')
 
         except EmailNotifyWorkerError, fwe:
-            # If a EmailNotifyWorkerError happens send a failure, notify and log
-            # the info for review.
+            # If a EmailNotifyWorkerError happens send a failure,
+            # notify and log  the info for review.
             self.app_logger.error('Failure: %s' % fwe)
 
             self.send(
@@ -92,6 +97,29 @@ class EmailNotifyWorker(Worker):
                 exchange=''
             )
             output.error(str(fwe))
+
+    def _send_msg(self, target, slug, msg):
+        """
+        Sends a message via email.
+
+        `Parameters`:
+            * target: The person or channel who will receive the message.
+            * slug: the subject to use.
+            * msg: The message to send.
+        """
+        email_msg = MIMEText(msg)
+        email_msg['To'] = target
+        email_msg['Subject'] = slug
+        email_msg['From'] = self._config['smtp_from']
+
+        smtp = smtplib.SMTP(
+            self._config['smtp_host'],
+            self._config.get('smtp_port', 25))
+        smtp.sendmail(
+            email_msg['From'],
+            email_msg['To'],
+            email_msg.as_string())
+        smtp.quit()
 
 
 def main():  # pragma nocover

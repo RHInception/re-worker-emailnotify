@@ -1,6 +1,6 @@
 ########################################################
 
-# Makefile for re-worker-ircnotify
+# Makefile for re-worker-emailnotify
 #
 # useful targets (not all implemented yet!):
 #   make clean               -- Clean up garbage
@@ -22,12 +22,12 @@
 ########################################################
 
 
-NAME := re-worker-ircnotify
+NAME := re-worker-emailnotify
 SHORTNAME := replugin
 TESTPACKAGE := replugin
 
 RPMSPECDIR := ./contrib/rpm/
-RPMSPEC := $(RPMSPECDIR)/re-worker-ircnotify.spec
+RPMSPEC := $(RPMSPECDIR)/re-worker-emailnotify.spec
 
 
 sdist: clean
@@ -39,7 +39,6 @@ virtualenv:
 	@echo "# Creating a virtualenv"
 	@echo "#############################################"
 	virtualenv $(NAME)env
-	. $(NAME)env/bin/activate && pip install -r requirements-travis.txt
 	. $(NAME)env/bin/activate && pip install pep8 nose coverage mock
 	# If there are any special things to install do it here
 	. $(NAME)env/bin/activate && pip install git+https://github.com/RHInception/re-worker.git
@@ -108,7 +107,7 @@ srpm: rpmcommon
 	-bs $(RPMSPEC)
 	@echo "#############################################"
 	@echo "Re-Core SRPM is built:"
-	@find rpm-build -maxdepth 2 -name 're-worker-ircnotify*src.rpm' | awk '{print "    " $$1}'
+	@find rpm-build -maxdepth 2 -name 're-worker-emailnotify*src.rpm' | awk '{print "    " $$1}'
 	@echo "#############################################"
 
 rpm: rpmcommon
@@ -121,5 +120,5 @@ rpm: rpmcommon
 	-ba $(RPMSPEC)
 	@echo "#############################################"
 	@echo "Re-Core RPMs are built:"
-	@find rpm-build -maxdepth 2 -name 're-worker-ircnotify*.rpm' | awk '{print "    " $$1}'
+	@find rpm-build -maxdepth 2 -name 're-worker-emailnotify*.rpm' | awk '{print "    " $$1}'
 	@echo "#############################################"

@@ -1,6 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+rpm-build/
+re-worker-emailnotifyenv/
 
 # C extensions
 *.so
