@@ -112,14 +112,17 @@ class EmailNotifyWorker(Worker):
         email_msg['Subject'] = slug
         email_msg['From'] = self._config['smtp_from']
 
-        smtp = smtplib.SMTP(
-            self._config['smtp_host'],
-            self._config.get('smtp_port', 25))
-        smtp.sendmail(
-            email_msg['From'],
-            email_msg['To'],
-            email_msg.as_string())
-        smtp.quit()
+        try:
+            smtp = smtplib.SMTP(
+                self._config['smtp_host'],
+                self._config.get('smtp_port', 25))
+            smtp.sendmail(
+                email_msg['From'],
+                email_msg['To'],
+                email_msg.as_string())
+            smtp.quit()
+        except smtplib.socket.error, se:
+            raise EmailNotifyWorkerError('Unable to send email: %s' % se)
 
 
 def main():  # pragma nocover
