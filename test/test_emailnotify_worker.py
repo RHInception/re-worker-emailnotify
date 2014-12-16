@@ -91,7 +91,7 @@ class TestEmailNotifyWorker(TestCase):
                 mock.patch('replugin.emailnotify.EmailNotifyWorker.send'),
                 mock.patch('replugin.emailnotify.EmailNotifyWorker._send_msg'),
                 mock.patch('replugin.emailnotify.smtplib')) as (
-                    _, _, _, _, smtplib):
+                    _, _, send, _, smtplib):
 
             worker = emailnotify.EmailNotifyWorker(
                 MQ_CONF,
@@ -118,6 +118,13 @@ class TestEmailNotifyWorker(TestCase):
             # This should send a message
             worker._send_msg.assert_called_once_with(
                 'someone@example.com', 'short', 'test message')
+
+            # Worker should let the caller know that the job is finished
+            send.assert_called_with(
+                'me', '123', {'status': 'completed'}, exchange='')
+
+            # This should happen twice because of mock calls and etc
+            self.assertEqual(send.call_count, 2)
 
     def test_email_notification_fails_with_bad_data(self):
         """

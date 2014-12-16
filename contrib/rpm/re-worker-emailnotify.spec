@@ -10,7 +10,7 @@
 Name: re-worker-emailnotify
 Summary: RE Email notification worker
 Version: 0.0.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -42,6 +42,9 @@ This notification worker handles pushing notifications out through email.
 %exclude %{python2_sitelib}/%{_pkg_name}/__init__.py*
 
 %changelog
+* Tue Dec 16 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.1-3
+- Worker should reply back 'completed' once actually completed
+
 * Fri Jun 20 2014 Steve Milner <stevem@gnulinux.net> - 0.0.1-2
 - Bug fix.
 

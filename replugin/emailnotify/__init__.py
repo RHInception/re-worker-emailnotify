@@ -87,6 +87,13 @@ class EmailNotifyWorker(Worker):
             output.info('Email notification sent!')
             self.app_logger.info('Finished Email notification with no errors.')
 
+            self.send(
+                properties.reply_to,
+                corr_id,
+                {'status': 'completed'},
+                exchange=''
+            )
+
         except EmailNotifyWorkerError, fwe:
             # If a EmailNotifyWorkerError happens send a failure,
             # notify and log  the info for review.
