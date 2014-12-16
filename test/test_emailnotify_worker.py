@@ -126,6 +126,58 @@ class TestEmailNotifyWorker(TestCase):
             # This should happen twice because of mock calls and etc
             self.assertEqual(send.call_count, 2)
 
+    def test_email_notification_with_step_format(self):
+        """
+        Verify email notification works with step message format as well.
+        """
+        with nested(
+                mock.patch('pika.SelectConnection'),
+                mock.patch('replugin.emailnotify.EmailNotifyWorker.notify'),
+                mock.patch('replugin.emailnotify.EmailNotifyWorker.send'),
+                mock.patch('replugin.emailnotify.EmailNotifyWorker._send_msg'),
+                mock.patch('replugin.emailnotify.smtplib')) as (
+                    _, _, send, _, smtplib):
+
+            worker = emailnotify.EmailNotifyWorker(
+                MQ_CONF,
+                logger=self.app_logger,
+                config_file='conf/example.json')
+
+            worker._on_open(self.connection)
+            worker._on_channel_open(self.channel)
+
+            body = {
+                'group': 'test',
+                'dynamic': {},
+                'notify': {},
+                'parameters': {
+                    'command': 'email',
+                    'subcommand': 'Email',
+                    'slug': 'short',
+                    'message': 'test message',
+                    'phase': 'started',
+                    'target': ['someone@example.com'],
+                }
+            }
+
+            # Execute the call
+            worker.process(
+                self.channel,
+                self.basic_deliver,
+                self.properties,
+                body,
+                self.logger)
+            # This should send a message
+            worker._send_msg.assert_called_once_with(
+                'someone@example.com', 'short', 'test message')
+
+            # Worker should let the caller know that the job is finished
+            send.assert_called_with(
+                'me', '123', {'status': 'completed'}, exchange='')
+
+            # This should happen twice because of mock calls and etc
+            self.assertEqual(send.call_count, 2)
+
     def test_email_notification_fails_with_bad_data(self):
         """
         Verify that when a notification comes in with bad data the

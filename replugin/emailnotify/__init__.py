@@ -23,6 +23,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 from reworker.worker import Worker
+from reworker.utils import step_to_notification_format
 
 
 class EmailNotifyWorkerError(Exception):
@@ -53,6 +54,13 @@ class EmailNotifyWorker(Worker):
             properties.reply_to, corr_id, {'status': 'started'}, exchange='')
 
         try:
+            # Transform step format to notification format if needed
+            if 'parameters' in body.keys():
+                self.app_logger.info(
+                    'Received step message format.'
+                    ' Translating to notification format.')
+                body = step_to_notification_format(body)
+
             required_keys = ('slug', 'message', 'phase', 'target')
             try:
                 # Remove target from this check

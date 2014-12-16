@@ -9,8 +9,8 @@
 
 Name: re-worker-emailnotify
 Summary: RE Email notification worker
-Version: 0.0.1
-Release: 3%{?dist}
+Version: 0.0.2
+Release: 1%{?dist}
 
 Group: Applications/System
 License: AGPLv3
@@ -20,7 +20,7 @@ Url: https://github.com/rhinception/re-worker-emailnotify
 BuildArch: noarch
 BuildRequires: python2-devel
 BuildRequires: python-setuptools
-Requires: re-worker
+Requires: re-worker >= 0.0.7
 Requires: python-setuptools
 
 %description
@@ -42,6 +42,9 @@ This notification worker handles pushing notifications out through email.
 %exclude %{python2_sitelib}/%{_pkg_name}/__init__.py*
 
 %changelog
+* Tue Dec 16 2014 Steve Milner <stevem@gnulinux.net> - 0.0.2-1
+- Now accepts step message format as well.
+
 * Tue Dec 16 2014 Tim Bielawa <tbielawa@redhat.com> - 0.0.1-3
 - Worker should reply back 'completed' once actually completed
 
